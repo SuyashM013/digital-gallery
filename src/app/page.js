@@ -28,8 +28,16 @@ const mockArtworks = [
     id: "2",
     title: "Urban Dreams",
     description: "A contemporary take on city life through mixed media.",
-    imageUrl: "https://images.unsplash.com/photo-1549887534-1541e9326642?q=80&w=1000",
+    imageUrl: "https://images.unsplash.com/photo-1586810724476-c294fb7ac01b?q=80&w=436&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     artist: "Marcus Rivera",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "3",
+    title: "Trees of Life",
+    description: "A vibrant exploration of color and form through abstract expressionism.",
+    imageUrl: "https://images.unsplash.com/photo-1591779051696-1c3fa1469a79?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    artist: "Teodor Drobota",
     createdAt: new Date().toISOString(),
   },
 ];
@@ -205,7 +213,7 @@ export default function Home() {
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {artworks.map((artwork) => (
-            <Card key={artwork.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={artwork.id} className="overflow-hidden hover:scale-105 hover:shadow-lg transition-all">
               <div className="aspect-video relative">
                 <img
                   src={artwork.imageUrl}
@@ -213,7 +221,7 @@ export default function Home() {
                   className="object-cover w-full h-full"
                 />
               </div>
-              
+
               <CardContent className="p-4">
                 <h3 className="text-xl font-semibold mb-2">{artwork.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{artwork.description}</p>

@@ -1,101 +1,233 @@
-import Image from "next/image";
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ImagePlus, Link, Loader2, Upload } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+
+const mockArtworks = [
+  {
+    id: "1",
+    title: "Abstract Harmony",
+    description: "A vibrant exploration of color and form through abstract expressionism.",
+    imageUrl: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?q=80&w=1000",
+    artist: "Sarah Chen",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "2",
+    title: "Urban Dreams",
+    description: "A contemporary take on city life through mixed media.",
+    imageUrl: "https://images.unsplash.com/photo-1549887534-1541e9326642?q=80&w=1000",
+    artist: "Marcus Rivera",
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [artworks, setArtworks] = useState(mockArtworks);
+  const [isUploading, setIsUploading] = useState(false);
+  const [newArtwork, setNewArtwork] = useState({
+    title: "",
+    description: "",
+    artist: "",
+    imageUrl: "",
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+      
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload an image file");
+        return;
+      }
+
+      setSelectedFile(file);
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+      setNewArtwork(prev => ({ ...prev, imageUrl: objectUrl }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
+
+    try {
+      // Validate inputs
+      if (!newArtwork.title || !newArtwork.description || !newArtwork.artist) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      if (!newArtwork.imageUrl && !selectedFile) {
+        throw new Error("Please provide an image URL or upload a file");
+      }
+
+      // Mock upload - in production, this would interact with Supabase
+      const mockUpload = {
+        id: String(artworks.length + 1),
+        ...newArtwork,
+        createdAt: new Date().toISOString(),
+      };
+
+      setArtworks([mockUpload, ...artworks]);
+      setNewArtwork({
+        title: "",
+        description: "",
+        artist: "",
+        imageUrl: "",
+      });
+      setSelectedFile(null);
+      setPreviewUrl("");
+      toast.success("Artwork uploaded successfully!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to upload artwork");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-center mb-8">Digital Art Gallery</h1>
+        
+        {/* Upload Form */}
+        <Card className="mb-12 max-w-2xl mx-auto">
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={newArtwork.title}
+                  onChange={(e) => setNewArtwork({ ...newArtwork, title: e.target.value })}
+                  placeholder="Enter artwork title"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={newArtwork.description}
+                  onChange={(e) => setNewArtwork({ ...newArtwork, description: e.target.value })}
+                  placeholder="Describe your artwork"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="artist">Artist Name</Label>
+                <Input
+                  id="artist"
+                  value={newArtwork.artist}
+                  onChange={(e) => setNewArtwork({ ...newArtwork, artist: e.target.value })}
+                  placeholder="Enter artist name"
+                  required
+                />
+              </div>
+
+              <Tabs defaultValue="file" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="file">Upload File</TabsTrigger>
+                  <TabsTrigger value="url">Image URL</TabsTrigger>
+                </TabsList>
+                <TabsContent value="file" className="space-y-4">
+                  <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="artwork">Upload Artwork</Label>
+                    <Input
+                      id="artwork"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="cursor-pointer"
+                    />
+                    {previewUrl && (
+                      <div className="mt-4 relative aspect-video">
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          className="rounded-lg object-cover w-full h-full"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+                <TabsContent value="url">
+                  <div className="space-y-2">
+                    <Label htmlFor="imageUrl">Image URL</Label>
+                    <Input
+                      id="imageUrl"
+                      value={newArtwork.imageUrl}
+                      onChange={(e) => setNewArtwork({ ...newArtwork, imageUrl: e.target.value })}
+                      placeholder="Enter image URL"
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <Button type="submit" className="w-full" disabled={isUploading}>
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Artwork
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Gallery Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {artworks.map((artwork) => (
+            <Card key={artwork.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="aspect-video relative">
+                <img
+                  src={artwork.imageUrl}
+                  alt={artwork.title}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              
+              <CardContent className="p-4">
+                <h3 className="text-xl font-semibold mb-2">{artwork.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{artwork.description}</p>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-medium">By {artwork.artist}</span>
+                  <span className="text-muted-foreground">
+                    {new Date(artwork.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

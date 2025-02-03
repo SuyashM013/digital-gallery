@@ -115,7 +115,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
 
-      <div className="w-fit bg-zinc-400 px-3 py-1 rounded-xl  transform -rotate-90 top-40 left-[-90px] fixed  z-2 ">
+      <div className="w-fit bg-zinc-400/40 px-3 py-1 rounded-xl  transform -rotate-90 top-40 left-[-90px] fixed  z-2 shadow-md ">
         <h2 >Created by Suyash Mishra</h2>
       </div> 
 

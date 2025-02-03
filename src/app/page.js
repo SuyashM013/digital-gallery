@@ -61,7 +61,7 @@ export default function Home() {
         toast.error("File size should be less than 5MB");
         return;
       }
-      
+
       if (!file.type.startsWith("image/")) {
         toast.error("Please upload an image file");
         return;
@@ -114,9 +114,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      <main className="container mx-auto px-4 py-8">
+
+      <div className="w-fit bg-zinc-400 px-3 py-1 rounded-xl  transform -rotate-90 top-40 left-[-90px] fixed  z-2 ">
+        <h2 >Created by Suyash Mishra</h2>
+      </div> 
+
+
+      <main className="container mx-auto px-4 py-8 z-1">
+
+
+
         <h1 className="text-4xl font-bold text-center mb-8">Digital Art Gallery</h1>
-        
+
         {/* Upload Form */}
         <Card className="mb-12 max-w-2xl mx-auto">
           <CardContent className="pt-6">
